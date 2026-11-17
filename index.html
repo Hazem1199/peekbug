@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PeekBug — 1-Line Feedback Widget for Agencies &amp; SaaS</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-pop { animation: popIn 0.18s ease-out forwards; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased">
+
+  <!-- Minimal Navbar -->
+  <header class="border-b border-slate-800/80 bg-slate-950/85 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-slate-950 font-extrabold text-sm">PB</span>
+        <span class="font-bold text-white tracking-tight">PeekBug</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="#demo" class="text-xs sm:text-sm text-slate-300 hover:text-white transition">Live Demo</a>
+        <a href="#waitlist" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-sm font-semibold transition">
+          Get 50% Off
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="max-w-5xl mx-auto px-4 pt-12 pb-10 text-center">
+    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25 mb-5">
+      Founding Beta · 50% Lifetime Discount ($9.5/mo instead of $19)
+    </span>
+    <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-3xl mx-auto mb-4">
+      Stop chasing client screenshots over WhatsApp &amp; email.
+    </h1>
+    <p class="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto mb-7 leading-relaxed">
+      Paste one <code class="text-emerald-300 font-mono text-sm">&lt;script&gt;</code> tag (&lt;15KB). Clients click once to report a bug—and you get the <strong class="text-white font-semibold">screenshot, exact URL, screen size, and console errors</strong> straight in Slack or Telegram.
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <a href="#waitlist" class="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-sm transition shadow-lg shadow-emerald-500/20">
+        Claim 50% Lifetime Discount →
+      </a>
+      <button id="btn-hero-try" type="button" class="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 font-medium text-sm transition">
+        Try the Widget Now
+      </button>
+    </div>
+  </section>
+
+  <!-- Simple 1-View Interactive Playground -->
+  <section id="demo" class="max-w-5xl mx-auto px-4 py-8">
+    <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 sm:p-7">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
+        <div>
+          <h2 class="text-lg font-bold text-white">Try it in 5 seconds</h2>
+          <p class="text-xs sm:text-sm text-slate-400">Submit a test note using the floating button and watch the Slack/Telegram alert appear live on the right.</p>
+        </div>
+        <span class="text-xs font-mono px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-emerald-300">
+          &lt;script src="cdn.peekbug.dev/w.js" defer&gt;&lt;/script&gt;
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+        <!-- Left: Visitor Side -->
+        <div class="rounded-xl border border-slate-800 bg-slate-950 p-5 flex flex-col justify-between gap-4">
+          <div>
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-indigo-300">Step 1 · On your client's site</span>
+            <h3 class="text-base font-semibold text-white mt-1 mb-2">Zero login for clients or testers</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+              Click the button below to open the floating widget (or use the green pill in the bottom-right corner). Optionally trigger a fake JS error first to see it get captured automatically.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2.5">
+            <button id="btn-open-demo" type="button" class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition">
+              Open Floating Widget
+            </button>
+            <button id="btn-sim-error" type="button" class="px-4 py-2 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs font-medium transition">
+              + Simulate JS Error (<span id="err-count">0</span>)
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Live Team Alert Output -->
+        <div class="rounded-xl border border-slate-800 bg-slate-950 p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">Step 2 · Instant Slack / Telegram Alert</span>
+            <span id="alert-badge" class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">Sample Alert</span>
+          </div>
+          <div id="live-alert-box" class="rounded-lg border border-slate-800 bg-slate-900/90 p-4 text-xs font-mono space-y-1.5 text-slate-300 break-words overflow-hidden">
+            <div class="text-emerald-400 font-semibold">[New Bug] Client Store</div>
+            <div><span class="text-slate-500">Note:</span> Checkout button freezes on iPhone Safari.</div>
+            <div><span class="text-slate-500">URL:</span> /checkout</div>
+            <div><span class="text-slate-500">Screen:</span> 390×844</div>
+            <div><span class="text-slate-500">Console Errors:</span> 1 captured</div>
+            <div><span class="text-slate-500">Screenshot:</span> Attached (PNG)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 Value Highlights -->
+  <section class="max-w-5xl mx-auto px-4 py-6">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="rounded-xl border border-slate-800/90 bg-slate-900/50 p-4">
+        <div class="text-sm font-semibold text-white mb-1">5-Second Install</div>
+        <p class="text-xs text-slate-400 leading-relaxed">Works on React, Vue, Next, WordPress, or plain HTML with a single script tag.</p>
+      </div>
+      <div class="rounded-xl border border-slate-800/90 bg-slate-900/50 p-4">
+        <div class="text-sm font-semibold text-white mb-1">Full Technical Context</div>
+        <p class="text-xs text-slate-400 leading-relaxed">Auto-captures screenshot, page URL, viewport size, and recent JS console errors.</p>
+      </div>
+      <div class="rounded-xl border border-slate-800/90 bg-slate-900/50 p-4">
+        <div class="text-sm font-semibold text-white mb-1">No Bloated Dashboard</div>
+        <p class="text-xs text-slate-400 leading-relaxed">Pushes directly to Slack, Telegram, or any Webhook—at a fraction of Marker.io's price.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Waitlist Section with Embedded Tally Form -->
+  <section id="waitlist" class="max-w-3xl mx-auto px-4 pt-8 pb-20">
+    <div class="rounded-2xl border border-emerald-500/30 bg-slate-900/80 p-5 sm:p-8 shadow-2xl">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-white mb-2">Join the Founding Beta (50% Off for Life)</h2>
+        <p class="text-sm text-slate-300">
+          First 20 agencies &amp; indie devs lock in <strong class="text-emerald-300">$9.5/month forever</strong> (regular $19/mo). Takes 30 seconds:
+        </p>
+      </div>
+
+      <!-- Embedded Tally Form -->
+      <div class="rounded-xl bg-white p-2 sm:p-4 overflow-hidden">
+        <iframe
+          src="https://tally.so/embed/LDKbdj?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+          loading="lazy"
+          width="100%"
+          height="460"
+          frameborder="0"
+          marginheight="0"
+          marginwidth="0"
+          title="PeekBug Early Access Waitlist">
+        </iframe>
+      </div>
+
+      <p class="text-center text-xs text-slate-400 mt-4">
+        Form not loading? <a href="https://tally.so/r/LDKbdj" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 underline">Open the form directly in a new tab →</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Floating Widget (Bottom Right) -->
+  <div class="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
+    <div id="widget-panel" class="hidden w-[320px] sm:w-[350px] rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden animate-pop">
+      <div class="px-4 py-3 bg-slate-800/90 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+          <span class="text-sm font-semibold text-white">Send Feedback</span>
+        </div>
+        <button id="btn-close-widget" type="button" aria-label="Close widget" class="text-slate-400 hover:text-white text-lg leading-none px-1">&times;</button>
+      </div>
+
+      <form id="widget-form" class="p-4 space-y-3">
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" data-type="Bug" class="type-pill px-2 py-1.5 rounded-lg text-xs font-medium border border-emerald-500 bg-emerald-500/15 text-emerald-300">Bug</button>
+          <button type="button" data-type="Idea" class="type-pill px-2 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800 text-slate-300">Idea</button>
+          <button type="button" data-type="Question" class="type-pill px-2 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800 text-slate-300">Question</button>
+        </div>
+
+        <textarea id="widget-msg" rows="3" required placeholder="Type a quick test note..." class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"></textarea>
+
+        <div class="rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-[11px] font-mono text-slate-400 flex items-center justify-between">
+          <span>Screen: <span id="cap-screen" class="text-slate-200">1440×900</span></span>
+          <span>Errors: <span id="cap-errors" class="text-emerald-400">0</span></span>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs transition">
+          Send Test Report
+        </button>
+
+        <div class="text-center">
+          <span class="text-[10px] text-slate-500">Powered by <span class="text-slate-300 font-medium">PeekBug</span></span>
+        </div>
+      </form>
+    </div>
+
+    <button id="btn-toggle-widget" type="button" class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs shadow-lg shadow-emerald-500/25 transition">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h6m-6 8l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H7z" />
+      </svg>
+      <span>Feedback</span>
+    </button>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-5 left-5 z-50 px-4 py-2.5 rounded-xl bg-slate-900 border border-emerald-500/40 text-xs text-emerald-300 shadow-xl"></div>
+
+  <script>
+    const state = {
+      selectedType: 'Bug',
+      errorsCount: 0
+    };
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2600);
+    }
+
+    function syncMeta() {
+      document.getElementById('cap-screen').textContent = `${window.innerWidth}×${window.innerHeight}`;
+      document.getElementById('err-count').textContent = String(state.errorsCount);
+      const capErr = document.getElementById('cap-errors');
+      capErr.textContent = String(state.errorsCount);
+      capErr.className = state.errorsCount > 0 ? 'text-rose-400 font-semibold' : 'text-emerald-400';
+    }
+
+    function toggleWidget(forceOpen) {
+      const panel = document.getElementById('widget-panel');
+      const open = typeof forceOpen === 'boolean' ? forceOpen : panel.classList.contains('hidden');
+      if (open) {
+        syncMeta();
+        panel.classList.remove('hidden');
+      } else {
+        panel.classList.add('hidden');
+      }
+    }
+
+    document.getElementById('btn-toggle-widget').addEventListener('click', () => toggleWidget());
+    document.getElementById('btn-hero-try').addEventListener('click', () => toggleWidget(true));
+    document.getElementById('btn-open-demo').addEventListener('click', () => toggleWidget(true));
+    document.getElementById('btn-close-widget').addEventListener('click', () => toggleWidget(false));
+
+    document.getElementById('btn-sim-error').addEventListener('click', () => {
+      state.errorsCount += 1;
+      syncMeta();
+      showToast(`Simulated JS error (${state.errorsCount}). Open the widget to send it!`);
+    });
+
+    document.querySelectorAll('.type-pill').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.selectedType = btn.getAttribute('data-type');
+        document.querySelectorAll('.type-pill').forEach((p) => {
+          const active = p.getAttribute('data-type') === state.selectedType;
+          p.className = active
+            ? 'type-pill px-2 py-1.5 rounded-lg text-xs font-medium border border-emerald-500 bg-emerald-500/15 text-emerald-300'
+            : 'type-pill px-2 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800 text-slate-300';
+        });
+      });
+    });
+
+    document.getElementById('widget-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('widget-msg');
+      const note = input.value.trim();
+      if (!note) return;
+
+      const box = document.getElementById('live-alert-box');
+      box.innerHTML = '';
+
+      const title = document.createElement('div');
+      title.className = 'text-emerald-400 font-semibold';
+      title.textContent = `[New ${state.selectedType}] Live Demo`;
+
+      const rowNote = document.createElement('div');
+      rowNote.textContent = `Note: ${note}`;
+
+      const rowUrl = document.createElement('div');
+      rowUrl.className = 'break-all';
+      const rawPath = window.location.pathname || '/';
+      rowUrl.textContent = `URL: ${rawPath.length > 32 ? '/demo' : rawPath}`;
+
+      const rowScreen = document.createElement('div');
+      rowScreen.textContent = `Screen: ${window.innerWidth}×${window.innerHeight}`;
+
+      const rowErr = document.createElement('div');
+      rowErr.textContent = `Console Errors: ${state.errorsCount} captured`;
+
+      const rowShot = document.createElement('div');
+      rowShot.textContent = 'Screenshot: Attached (PNG)';
+
+      box.append(title, rowNote, rowUrl, rowScreen, rowErr, rowShot);
+
+      const badge = document.getElementById('alert-badge');
+      badge.textContent = 'Just Received!';
+      badge.className = 'text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+
+      state.errorsCount = 0;
+      input.value = '';
+      syncMeta();
+      toggleWidget(false);
+      showToast('Alert delivered! Check Step 2 on the page.');
+    });
+
+    window.addEventListener('resize', syncMeta);
+    syncMeta();
+  </script>
+</body>
+</html>
